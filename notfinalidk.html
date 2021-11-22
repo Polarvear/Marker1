@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>과제2</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
+</head>
+<body>
+<!-- 지도를 표시할 div 입니다 -->
+
+
+<style>
+    #btn{
+        position: fixed;
+        top: 1em;
+        right: 1em;
+    }
+</style>
+<div id="map" style="width:80vw;height:100vh;"></div>
+<div id="btn">
+    <div>
+        <button> <a href="#link"onclick="loadData('http://localhost:5555/Marker1/fastfood.json')">패스트푸드</a></button>
+        <button> <a href="#link"onclick="loadData('http://localhost:5555/Marker1/japfood.json')">일식</a></button>
+        <button> <a href="#link"onclick="loadData('http://localhost:5555/Marker1/korfood.json')">한식</a></button>
+        <ul class="storeList">
+
+        </ul>
+    </div>
+</div>
+    <div id="link">
+        <h4></h4>
+    </div>
+
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=0657413c243ac86f1aac3e726ed35b9e"></script>
+<script>
+    $(document).ready(function (){
+        $('#btn').tab()
+
+        $('#btn.a').on('click', function (e){
+            e.preventDefault()
+            e.stopPropagation()
+        })
+    })
+</script>
+<script>
+    var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+        mapOption = {
+            center: new kakao.maps.LatLng(37.499411, 127.028983), // 지도의 중심좌표
+            level: 4 // 지도의 확대 레벨
+        };
+
+    // 지도를 표시할 div와  지도 옵션으로  지도를 생성합니다
+    var map = new kakao.maps.Map(mapContainer, mapOption);
+</script>
+
+<script>
+    kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+
+        // 클릭한 위도, 경도 정보를 가져옵니다
+        var latlng = mouseEvent.latLng;
+
+        var message = '클릭한 위치의 위도는 ' + latlng.getLat() + ' 이고, ';
+        message += '경도는 ' + latlng.getLng() + ' 입니다';
+
+        var resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = message;
+
+    });
+
+    const markerArr = []
+
+    function showMarkers(stores) {
+        for (let i = 0; i < markerArr.length; i++) {
+            markerArr[i].setMap(null)
+        }
+
+        for (let i = 0; i < stores.length; i++) {
+            const store = stores[i]
+            const latLng = new kakao.maps.LatLng(store.lat, store.lng)
+            const marker = new kakao.maps.Marker({
+                map: map,
+                position: latLng,
+                title: store.name
+            })
+            markerArr.push(marker)
+        } // end for
+
+
+    }
+
+    document.querySelector(".storeList").addEventListener("click", (e) => {
+        // 안전하게 코딩하고 싶으면 2개 다 적기
+        e.preventDefault()
+        e.stopPropagation()
+
+        const target = e.target // 클릭 이벤트 타겟 찾기
+
+        if (target.tagName !== 'LI') {
+            return
+        }
+
+        const keyword = target.getAttribute("data-team")
+
+        if (keyword === 1) {
+            const result = arr.filter(s => s.team === keyword)
+            showMarkers(result)
+        } else if (keyword === 2) {
+            const result = arr.filter(s => s.team === keyword)
+            showMarkers(result)
+        } else {
+            const result = arr.filter(s => s.team === keyword)
+            showMarkers(result)
+        }
+
+    }, false)
+
+</script>
+
+<script>
+    function loadData(serverInfo) { //JSON추출
+        fetch(serverInfo)
+            .then(response => response.json())
+            .then(data => {
+                makeList(data)
+                showMarkers(data)
+            })
+    }
+
+    function makeList(arr) {
+
+        const ulEle = document.querySelector(".storeList")
+
+        let str = ''
+
+        for (let i = 0; i < arr.length; i++) {
+            console.log(arr[i])
+            str += `<li data-name="${arr[i].name}" data-lat="${arr[i].lat}" data-lng="${arr[i].lng}" data-team="${arr[i].team}">${arr[i].name}</li>`
+        } // end for
+
+        ulEle.innerHTML = str
+    }
+
+    document.querySelector(".storeList").addEventListener("click", (e) => {
+        e.stopPropagation() // 안전하게 코딩하고 싶으면 2개 다 적기
+        e.preventDefault()
+
+        const target = e.target
+
+        if (target.tagName !== 'LI') {
+            return
+        }
+
+        const name = target.getAttribute("data-name")
+        const lat = target.getAttribute("data-lat")
+        const lng = target.getAttribute("data-lng")
+        const url = document.querySelector(`#${name}`).src
+
+        console.log(name, lat, lng, url)
+    }, false)
+
+</script>
+</body>
+</html>
+
+
+
+
